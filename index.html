@@ -1,0 +1,1376 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>馬良的神奇畫布大冒險</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #263238;
+        --muted: #65737a;
+        --paper: #fff9ed;
+        --panel: #ffffff;
+        --line: #d8e2dd;
+        --sky: #bfe3ee;
+        --sea: #2f8fa3;
+        --leaf: #4c8b57;
+        --gold: #f0bd55;
+        --red: #c95f55;
+        --plum: #765aa4;
+        --blue: #3d78a7;
+        --shadow: 0 18px 42px rgba(38, 50, 56, 0.16);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+        background:
+          linear-gradient(180deg, #e8f5f2 0%, #fff6df 52%, #f0eadf 100%);
+      }
+
+      button,
+      input,
+      textarea,
+      select {
+        font: inherit;
+      }
+
+      button {
+        min-height: 44px;
+        border: 0;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 900;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 28px));
+        margin: 0 auto;
+        padding: 22px 0 18px;
+      }
+
+      .hero {
+        position: relative;
+        min-height: 360px;
+        overflow: hidden;
+        border-radius: 8px;
+        background: linear-gradient(180deg, #275069 0%, #3f8d8d 58%, #6aa65e 58% 100%);
+        box-shadow: var(--shadow);
+      }
+
+      .hero::before {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+        background-size: 46px 46px;
+        opacity: 0.45;
+      }
+
+      .hero-copy {
+        position: relative;
+        z-index: 1;
+        max-width: 620px;
+        padding: 42px;
+        color: #fffdf4;
+      }
+
+      .kicker,
+      .mini {
+        margin: 0 0 8px;
+        color: var(--blue);
+        font-size: 0.88rem;
+        font-weight: 900;
+      }
+
+      .hero .kicker {
+        color: #ffe08a;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 600px;
+        margin-bottom: 12px;
+        font-size: 4.2rem;
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .hero-copy p {
+        max-width: 500px;
+        font-size: 1.08rem;
+        font-weight: 800;
+        line-height: 1.75;
+      }
+
+      .hero-art {
+        position: absolute;
+        right: 28px;
+        bottom: 22px;
+        width: min(48%, 470px);
+        height: 260px;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      .island {
+        position: absolute;
+        left: 38px;
+        right: 28px;
+        bottom: 0;
+        height: 96px;
+        border-radius: 56% 44% 0 0;
+        background: #d8b477;
+        box-shadow: inset 0 -16px rgba(0, 0, 0, 0.12);
+      }
+
+      .sea {
+        position: absolute;
+        left: -30px;
+        right: -20px;
+        bottom: 0;
+        height: 72px;
+        border-radius: 50% 50% 0 0;
+        background:
+          repeating-linear-gradient(168deg, rgba(255, 255, 255, 0.18) 0 12px, transparent 12px 42px),
+          var(--sea);
+      }
+
+      .tree {
+        position: absolute;
+        right: 70px;
+        bottom: 76px;
+        width: 32px;
+        height: 116px;
+        border-radius: 12px;
+        background: #8a5b38;
+      }
+
+      .tree::before {
+        position: absolute;
+        left: -44px;
+        top: -58px;
+        width: 120px;
+        height: 92px;
+        border-radius: 50%;
+        content: "";
+        background: #4c8b57;
+        box-shadow: 18px 28px 0 #5e9f62, -18px 32px 0 #3f7c51;
+      }
+
+      .coin {
+        position: absolute;
+        z-index: 2;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--gold);
+        box-shadow: inset -4px -4px rgba(0, 0, 0, 0.12);
+      }
+
+      .coin.a {
+        right: 112px;
+        bottom: 174px;
+      }
+
+      .coin.b {
+        right: 68px;
+        bottom: 142px;
+      }
+
+      .coin.c {
+        right: 150px;
+        bottom: 136px;
+      }
+
+      .brush {
+        position: absolute;
+        left: 40px;
+        bottom: 92px;
+        width: 210px;
+        height: 28px;
+        border-radius: 999px;
+        background: #f3d8a8;
+        transform: rotate(-28deg);
+        box-shadow: 0 12px 22px rgba(0, 0, 0, 0.18);
+      }
+
+      .brush::before {
+        position: absolute;
+        left: -38px;
+        top: -9px;
+        width: 56px;
+        height: 46px;
+        border-radius: 70% 30% 60% 40%;
+        content: "";
+        background: #2d3438;
+      }
+
+      .brush::after {
+        position: absolute;
+        right: -32px;
+        top: 2px;
+        width: 46px;
+        height: 24px;
+        border-radius: 999px;
+        content: "";
+        background: #c95f55;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 310px minmax(0, 1fr);
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .map,
+      .panel {
+        border: 2px solid rgba(38, 50, 56, 0.08);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .map {
+        padding: 18px;
+      }
+
+      .map h2 {
+        margin-bottom: 6px;
+        font-size: 1.35rem;
+      }
+
+      .map p {
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.55;
+      }
+
+      .trail {
+        display: grid;
+        gap: 9px;
+        margin-top: 16px;
+      }
+
+      .stage-tab {
+        display: grid;
+        grid-template-columns: 38px 1fr auto;
+        align-items: center;
+        gap: 10px;
+        min-height: 56px;
+        padding: 8px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        color: var(--ink);
+        text-align: left;
+      }
+
+      .stage-tab.is-active {
+        border-color: var(--blue);
+        background: #e8f4fa;
+      }
+
+      .stage-tab.is-done {
+        border-color: rgba(76, 139, 87, 0.45);
+        background: #edf7ef;
+      }
+
+      .badge-icon {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        color: #fff;
+        background: var(--blue);
+        font-weight: 900;
+      }
+
+      .stage-tab small {
+        display: block;
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .checkmark {
+        color: var(--leaf);
+        font-weight: 900;
+      }
+
+      .panel {
+        min-height: 610px;
+        padding: 24px;
+      }
+
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 16px;
+      }
+
+      .panel-head h2 {
+        margin-bottom: 4px;
+        font-size: 1.75rem;
+      }
+
+      .score {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(74px, 1fr));
+        gap: 8px;
+      }
+
+      .score-card {
+        min-height: 66px;
+        padding: 8px;
+        border-radius: 8px;
+        background: #f3f0e7;
+        text-align: center;
+      }
+
+      .score-card strong {
+        display: block;
+        font-size: 1.42rem;
+        line-height: 1.1;
+      }
+
+      .score-card span {
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 900;
+      }
+
+      .prompt {
+        min-height: 94px;
+        padding: 16px;
+        border: 2px dashed #c8d9df;
+        border-radius: 8px;
+        background: #f8fbfb;
+      }
+
+      .prompt p {
+        margin-bottom: 0;
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.7;
+      }
+
+      .work {
+        display: grid;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .card-grid,
+      .choice-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 12px;
+      }
+
+      .story-card,
+      .choice,
+      .match-row,
+      .chip,
+      .observation-card {
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+      }
+
+      .story-card {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        line-height: 1.55;
+      }
+
+      .move-buttons {
+        display: flex;
+        gap: 6px;
+      }
+
+      .icon-btn {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        min-height: 34px;
+        padding: 0;
+        color: var(--ink);
+        background: #e7eef0;
+      }
+
+      .choice {
+        min-height: 58px;
+        padding: 12px;
+        color: var(--ink);
+        background: #fffdf7;
+        text-align: left;
+      }
+
+      .choice[aria-pressed="true"],
+      .chip.selected {
+        border-color: var(--blue);
+        background: #e8f4fa;
+      }
+
+      .choice.good {
+        border-color: var(--leaf);
+        background: #e9f5ea;
+      }
+
+      .choice.bad {
+        border-color: var(--red);
+        background: #fff0ec;
+      }
+
+      .match-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .match-row {
+        display: grid;
+        grid-template-columns: 1fr minmax(130px, 190px);
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+      }
+
+      select,
+      textarea {
+        width: 100%;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      select {
+        min-height: 40px;
+        padding: 0 10px;
+      }
+
+      textarea {
+        min-height: 96px;
+        padding: 10px;
+        resize: vertical;
+        line-height: 1.6;
+      }
+
+      .sentence {
+        display: grid;
+        gap: 10px;
+      }
+
+      .sentence-line {
+        display: grid;
+        grid-template-columns: 1fr minmax(120px, 220px);
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        border-radius: 8px;
+        background: #f7fbfb;
+      }
+
+      .observation {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .mini-scene {
+        position: relative;
+        min-height: 260px;
+        overflow: hidden;
+        border-radius: 8px;
+        background: linear-gradient(180deg, var(--sky) 0 46%, var(--sea) 46% 100%);
+      }
+
+      .mini-island {
+        position: absolute;
+        left: 20%;
+        right: 15%;
+        top: 38%;
+        height: 42%;
+        border-radius: 55% 45% 0 0;
+        background: #d9bc79;
+        box-shadow: inset 0 -15px rgba(0, 0, 0, 0.1);
+      }
+
+      .mini-tree {
+        position: absolute;
+        left: 51%;
+        top: 31%;
+        width: 24px;
+        height: 90px;
+        border-radius: 12px;
+        background: #865638;
+      }
+
+      .mini-tree::before {
+        position: absolute;
+        left: -42px;
+        top: -48px;
+        width: 110px;
+        height: 76px;
+        border-radius: 50%;
+        content: "";
+        background: #438f5a;
+      }
+
+      .mini-coin {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--gold);
+      }
+
+      .mini-coin.one {
+        left: 50%;
+        top: 30%;
+      }
+
+      .mini-coin.two {
+        left: 61%;
+        top: 35%;
+      }
+
+      .mini-coin.three {
+        left: 45%;
+        top: 40%;
+      }
+
+      .observation-card {
+        padding: 12px;
+      }
+
+      .chip-bank,
+      .chip-answer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        min-height: 58px;
+        padding: 10px;
+        border: 2px dashed var(--line);
+        border-radius: 8px;
+        background: #fafcfb;
+      }
+
+      .chip {
+        min-height: 40px;
+        padding: 0 12px;
+        background: #fffdf7;
+      }
+
+      .canvas-tools {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: start;
+      }
+
+      .drawing-board {
+        width: 100%;
+        height: 260px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: #fffdf7;
+        touch-action: none;
+      }
+
+      .swatches {
+        display: grid;
+        gap: 8px;
+      }
+
+      .swatch {
+        width: 38px;
+        min-height: 38px;
+        border: 2px solid rgba(0, 0, 0, 0.12);
+        padding: 0;
+      }
+
+      .swatch[aria-pressed="true"] {
+        outline: 3px solid var(--ink);
+        outline-offset: 2px;
+      }
+
+      .feedback {
+        min-height: 56px;
+        margin-top: 16px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        background: #f4f0e8;
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1.6;
+      }
+
+      .feedback.good {
+        color: #2c6d45;
+        background: #e8f4ea;
+      }
+
+      .feedback.try {
+        color: #8a5137;
+        background: #fff0e8;
+      }
+
+      .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+      }
+
+      .primary {
+        padding: 0 18px;
+        color: #fff;
+        background: var(--leaf);
+      }
+
+      .secondary {
+        padding: 0 18px;
+        color: var(--ink);
+        background: #e8eef0;
+      }
+
+      .gold {
+        color: #3a2c16;
+        background: var(--gold);
+      }
+
+      .site-credit {
+        margin: 14px 0 0;
+        color: rgba(38, 50, 56, 0.72);
+        font-size: 0.86rem;
+        font-weight: 800;
+        line-height: 1.55;
+        letter-spacing: 0;
+        text-align: center;
+      }
+
+      .site-credit p {
+        margin: 4px 0;
+      }
+
+      @media (max-width: 900px) {
+        .shell {
+          width: min(100% - 18px, 680px);
+          padding-top: 10px;
+        }
+
+        .hero {
+          min-height: 520px;
+        }
+
+        .hero-copy {
+          padding: 30px 24px;
+        }
+
+        h1 {
+          max-width: 330px;
+          font-size: 2.72rem;
+          line-height: 1.1;
+        }
+
+        .hero-copy p {
+          max-width: 330px;
+        }
+
+        .hero-art {
+          left: 10px;
+          right: 10px;
+          bottom: 18px;
+          width: auto;
+          height: 240px;
+        }
+
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .panel {
+          min-height: auto;
+          padding: 18px;
+        }
+
+        .panel-head {
+          display: grid;
+        }
+
+        .observation,
+        .canvas-tools {
+          grid-template-columns: 1fr;
+        }
+
+        .swatches {
+          grid-template-columns: repeat(5, 38px);
+        }
+      }
+
+      @media (max-width: 560px) {
+        h1 {
+          max-width: 280px;
+          font-size: 2.26rem;
+        }
+
+        .score {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .match-row,
+        .sentence-line {
+          grid-template-columns: 1fr;
+        }
+
+        .card-grid,
+        .choice-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section class="hero" aria-labelledby="gameTitle">
+        <div class="hero-copy">
+          <p class="kicker">國小二下國語第九課延伸</p>
+          <h1 id="gameTitle">馬良的神奇畫布大冒險</h1>
+          <p>找回遺落在海島上的神筆，完成情節、字形、句型、景物、標點、部首與創意任務。</p>
+          <button id="startBtn" class="primary gold" type="button">開始冒險</button>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <span class="sea"></span>
+          <span class="island"></span>
+          <span class="tree"></span>
+          <span class="coin a"></span>
+          <span class="coin b"></span>
+          <span class="coin c"></span>
+          <span class="brush"></span>
+        </div>
+      </section>
+
+      <section class="layout" id="gameArea" hidden>
+        <aside class="map" aria-label="冒險地圖">
+          <h2>神筆試煉</h2>
+          <p>完成七個任務，替馬良找回神筆。</p>
+          <div id="trail" class="trail"></div>
+        </aside>
+
+        <main class="panel">
+          <div class="panel-head">
+            <div>
+              <p id="levelKicker" class="mini">關卡</p>
+              <h2 id="levelTitle"></h2>
+            </div>
+            <div class="score" aria-label="遊戲分數">
+              <div class="score-card"><strong id="scoreText">0</strong><span>魔力</span></div>
+              <div class="score-card"><strong id="doneText">0/7</strong><span>完成</span></div>
+              <div class="score-card"><strong id="brushText">0</strong><span>筆鋒</span></div>
+            </div>
+          </div>
+
+          <section class="prompt">
+            <h3 id="promptTitle"></h3>
+            <p id="promptText"></p>
+          </section>
+
+          <section id="work" class="work"></section>
+          <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+
+          <div class="actions">
+            <button id="hintBtn" class="secondary" type="button">提示</button>
+            <button id="checkBtn" class="secondary" type="button">檢查答案</button>
+            <button id="nextBtn" class="primary" type="button" disabled>下一關</button>
+          </div>
+        </main>
+      </section>
+
+      <section id="finishPanel" class="panel" hidden>
+        <p class="mini">冒險完成</p>
+        <h2>神筆回到馬良手中了</h2>
+        <p id="finishText"></p>
+        <div class="actions">
+          <button id="restartBtn" class="primary" type="button">再玩一次</button>
+        </div>
+      </section>
+
+      <footer class="site-credit">
+        <p>練習內容依據：國小二年級下學期康軒版國語第九課〈神筆馬良〉</p>
+        <p>Interactive design by chaohuang-TW</p>
+        <p>非官方學習練習頁面</p>
+      </footer>
+    </div>
+
+    <script>
+      const levels = [
+        {
+          id: "memory",
+          icon: "情",
+          title: "記憶拼圖",
+          kicker: "關卡一｜課文情節重組",
+          promptTitle: "把故事圖卡排成正確順序",
+          promptText: "依照〈神筆馬良〉故事先後，把五張圖卡重新排列。",
+          hint: "先有老人送神筆，馬良幫村人畫畫，皇帝才把他抓走。",
+          type: "order",
+          answer: ["B", "D", "A", "E", "C"],
+          cards: [
+            ["A", "貪心的皇帝知道了，派人把馬良抓來，要他畫出金山銀山。"],
+            ["B", "馬良夢見一個老人，老人送給他一枝神筆。"],
+            ["C", "馬良回到村子裡，繼續幫大家畫畫。"],
+            ["D", "有了這枝筆，馬良天天為村子裡的人畫房子、畫牛。"],
+            ["E", "馬良畫了一陣陣的強風和大浪，把皇帝坐的船吹得看不見了。"]
+          ],
+          shuffled: ["A", "B", "E", "D", "C"]
+        },
+        {
+          id: "spot",
+          icon: "形",
+          title: "字形找碴",
+          kicker: "關卡二｜相似字辨識",
+          promptTitle: "修正魔法密語",
+          promptText: "選出每一句中應該互換的兩個字，打開通往小島的門。",
+          hint: "鳥下面有四點像尾羽；島下面有山。銀和跟的左邊部件不同。",
+          type: "swap",
+          rows: [
+            {
+              sentence: "在那座美麗的海「鳥」，是許多野「島」的家。",
+              answer: "鳥島互換",
+              options: ["鳥島互換", "美麗互換", "海野互換"]
+            },
+            {
+              sentence: "妹妹想當小「銀」班，跟著奶奶到「跟」行辦事。",
+              answer: "銀跟互換",
+              options: ["銀跟互換", "妹妹奶奶互換", "小行互換"]
+            }
+          ]
+        },
+        {
+          id: "condition",
+          icon: "句",
+          title: "魔法條件句",
+          kicker: "關卡三｜不然句型",
+          promptTitle: "完成神筆咒語",
+          promptText: "根據情境，完成「......不然......」的句子。",
+          hint: "不然後面通常接沒有照做時會發生的結果。",
+          type: "cloze",
+          rows: [
+            {
+              start: "皇帝要馬良畫出金山銀山，不然",
+              answer: "就不准他回家。",
+              options: ["就不准他回家。", "就送他一枝筆。", "就幫村人畫牛。"]
+            },
+            {
+              start: "媽媽提醒我睡前要刷牙，不然",
+              answer: "容易蛀牙。",
+              options: ["容易蛀牙。", "會變成金山。", "可以不用睡覺。"]
+            },
+            {
+              start: "你要記得幫陽臺上的花澆水，不然",
+              answer: "它就會枯死。",
+              options: ["它就會枯死。", "它會自己畫畫。", "它會變成船。"]
+            }
+          ]
+        },
+        {
+          id: "view",
+          icon: "景",
+          title: "神奇望遠鏡",
+          kicker: "關卡四｜遠中近表達",
+          promptTitle: "用三層距離描述畫面",
+          promptText: "觀察海島圖，選出遠方、中間、近看的句子。",
+          hint: "遠方看大範圍，中間鎖定島和樹，近看才看到元寶細節。",
+          type: "view",
+          rows: [
+            {
+              label: "遠方",
+              answer: "海中有一座小島。",
+              options: ["海中有一座小島。", "樹上有元寶。", "筆尖沾著墨。"]
+            },
+            {
+              label: "中間",
+              answer: "島上有一棵搖錢樹。",
+              options: ["島上有一棵搖錢樹。", "天空有一顆星。", "近看有閃亮元寶。"]
+            },
+            {
+              label: "近看",
+              answer: "樹上長滿了閃閃發光的元寶。",
+              options: ["樹上長滿了閃閃發光的元寶。", "海中有小島。", "遠方有村子。"]
+            }
+          ]
+        },
+        {
+          id: "mark",
+          icon: "名",
+          title: "標點符號保衛戰",
+          kicker: "關卡五｜專名號",
+          promptTitle: "挑出需要守護魔杖的詞語",
+          promptText: "人名、地名、國名通常需要專名號。選出每句中的專名。",
+          hint: "想想它是不是特定的人、地方或國家。",
+          type: "proper",
+          rows: [
+            {
+              sentence: "馬良天天為村子裡的人畫畫。",
+              answers: ["馬良"],
+              options: ["馬良", "村子", "畫畫"]
+            },
+            {
+              sentence: "高鐵通車以後，從南港到左營最快只需要一百零五分鐘。",
+              answers: ["南港", "左營"],
+              options: ["高鐵", "南港", "左營", "一百零五分鐘"]
+            },
+            {
+              sentence: "過了一個愉快的寒假，我們一家人去越南。",
+              answers: ["越南"],
+              options: ["寒假", "一家人", "越南"]
+            }
+          ]
+        },
+        {
+          id: "radical",
+          icon: "部",
+          title: "生字工廠配對機",
+          kicker: "關卡六｜部首與字形",
+          promptTitle: "合成神奇墨水",
+          promptText: "把部首和字件配成正確生字。",
+          hint: "錢是金部，醒是酉部，貪和寶貝有關，波和水有關。",
+          type: "match",
+          rows: [
+            { left: "金部 + 戔", answer: "錢", options: ["錢", "醒", "貪", "波"] },
+            { left: "酉部 + 星", answer: "醒", options: ["錢", "醒", "貪", "波"] },
+            { left: "貝部 + 今", answer: "貪", options: ["錢", "醒", "貪", "波"] },
+            { left: "水部 + 皮", answer: "波", options: ["錢", "醒", "貪", "波"] }
+          ]
+        },
+        {
+          id: "empathy",
+          icon: "想",
+          title: "如果你有一枝神筆",
+          kicker: "關卡七｜同理心與創意",
+          promptTitle: "畫出你的神筆答案",
+          promptText: "這一關沒有標準答案。寫下你會用神筆幫誰、畫什麼，也可以在畫布上畫出來。",
+          hint: "想一想：誰需要幫忙？你畫的東西怎麼幫上忙？",
+          type: "creative"
+        }
+      ];
+
+      const state = {
+        index: 0,
+        score: 0,
+        brush: 0,
+        done: new Set(),
+        order: [],
+        selected: {},
+        chips: {},
+        color: "#263238",
+        drawing: false
+      };
+
+      const els = {
+        startBtn: document.querySelector("#startBtn"),
+        restartBtn: document.querySelector("#restartBtn"),
+        gameArea: document.querySelector("#gameArea"),
+        finishPanel: document.querySelector("#finishPanel"),
+        trail: document.querySelector("#trail"),
+        levelKicker: document.querySelector("#levelKicker"),
+        levelTitle: document.querySelector("#levelTitle"),
+        promptTitle: document.querySelector("#promptTitle"),
+        promptText: document.querySelector("#promptText"),
+        work: document.querySelector("#work"),
+        feedback: document.querySelector("#feedback"),
+        hintBtn: document.querySelector("#hintBtn"),
+        checkBtn: document.querySelector("#checkBtn"),
+        nextBtn: document.querySelector("#nextBtn"),
+        scoreText: document.querySelector("#scoreText"),
+        doneText: document.querySelector("#doneText"),
+        brushText: document.querySelector("#brushText"),
+        finishText: document.querySelector("#finishText")
+      };
+
+      els.startBtn.addEventListener("click", () => {
+        document.querySelector(".hero").hidden = true;
+        els.finishPanel.hidden = true;
+        els.gameArea.hidden = false;
+        renderLevel(0);
+      });
+      els.restartBtn.addEventListener("click", resetGame);
+      els.hintBtn.addEventListener("click", () => setFeedback(levels[state.index].hint, ""));
+      els.checkBtn.addEventListener("click", checkAnswer);
+      els.nextBtn.addEventListener("click", nextLevel);
+
+      function renderLevel(index) {
+        state.index = index;
+        state.selected = {};
+        state.chips = {};
+        const level = levels[index];
+        els.levelKicker.textContent = level.kicker;
+        els.levelTitle.textContent = level.title;
+        els.promptTitle.textContent = level.promptTitle;
+        els.promptText.textContent = level.promptText;
+        els.nextBtn.disabled = true;
+        els.checkBtn.disabled = false;
+        setFeedback("完成任務後，神筆會恢復一點魔力。", "");
+        renderTrail();
+        renderScore();
+        els.work.innerHTML = "";
+
+        if (level.type === "order") renderOrder(level);
+        if (level.type === "swap") renderRows(level);
+        if (level.type === "cloze") renderCloze(level);
+        if (level.type === "view") renderView(level);
+        if (level.type === "proper") renderProper(level);
+        if (level.type === "match") renderMatch(level);
+        if (level.type === "creative") renderCreative();
+      }
+
+      function renderTrail() {
+        els.trail.innerHTML = "";
+        levels.forEach((level, index) => {
+          const button = document.createElement("button");
+          button.className = "stage-tab";
+          if (index === state.index) button.classList.add("is-active");
+          if (state.done.has(level.id)) button.classList.add("is-done");
+          button.type = "button";
+          button.innerHTML = `<span class="badge-icon">${level.icon}</span><span>${level.title}<small>${level.kicker.split("｜")[1]}</small></span><span class="checkmark">${state.done.has(level.id) ? "✓" : ""}</span>`;
+          button.addEventListener("click", () => renderLevel(index));
+          els.trail.appendChild(button);
+        });
+      }
+
+      function renderScore() {
+        els.scoreText.textContent = state.score;
+        els.doneText.textContent = `${state.done.size}/7`;
+        els.brushText.textContent = state.brush;
+      }
+
+      function renderOrder(level) {
+        state.order = level.shuffled.slice();
+        drawOrder(level);
+      }
+
+      function drawOrder(level) {
+        els.work.innerHTML = "";
+        const list = document.createElement("div");
+        list.className = "work";
+        state.order.forEach((id, index) => {
+          const cardData = level.cards.find((card) => card[0] === id);
+          const card = document.createElement("div");
+          card.className = "story-card";
+          card.innerHTML = `<strong>${index + 1}</strong><span><b>圖卡 ${cardData[0]}</b>：${cardData[1]}</span>`;
+          const controls = document.createElement("div");
+          controls.className = "move-buttons";
+          controls.appendChild(iconButton("↑", "往上移", index === 0, () => moveOrder(index, -1, level)));
+          controls.appendChild(iconButton("↓", "往下移", index === state.order.length - 1, () => moveOrder(index, 1, level)));
+          card.appendChild(controls);
+          list.appendChild(card);
+        });
+        els.work.appendChild(list);
+      }
+
+      function iconButton(text, label, disabled, action) {
+        const button = document.createElement("button");
+        button.className = "icon-btn";
+        button.type = "button";
+        button.textContent = text;
+        button.title = label;
+        button.setAttribute("aria-label", label);
+        button.disabled = disabled;
+        button.addEventListener("click", action);
+        return button;
+      }
+
+      function moveOrder(index, delta, level) {
+        const next = index + delta;
+        [state.order[index], state.order[next]] = [state.order[next], state.order[index]];
+        drawOrder(level);
+      }
+
+      function renderRows(level) {
+        const list = document.createElement("div");
+        list.className = "match-list";
+        level.rows.forEach((row, index) => {
+          const item = document.createElement("label");
+          item.className = "match-row";
+          item.innerHTML = `<span>${row.sentence}</span>`;
+          item.appendChild(selectFor(row.options, index));
+          list.appendChild(item);
+        });
+        els.work.appendChild(list);
+      }
+
+      function renderCloze(level) {
+        const list = document.createElement("div");
+        list.className = "sentence";
+        level.rows.forEach((row, index) => {
+          const line = document.createElement("label");
+          line.className = "sentence-line";
+          line.innerHTML = `<span>${row.start}______</span>`;
+          line.appendChild(selectFor(row.options, index));
+          list.appendChild(line);
+        });
+        els.work.appendChild(list);
+      }
+
+      function renderView(level) {
+        const box = document.createElement("div");
+        box.className = "observation";
+        box.innerHTML = `
+          <div class="mini-scene" aria-label="海島圖">
+            <span class="mini-island"></span>
+            <span class="mini-tree"></span>
+            <span class="mini-coin one"></span>
+            <span class="mini-coin two"></span>
+            <span class="mini-coin three"></span>
+          </div>
+        `;
+        const list = document.createElement("div");
+        list.className = "match-list";
+        level.rows.forEach((row, index) => {
+          const item = document.createElement("label");
+          item.className = "observation-card";
+          item.innerHTML = `<strong>${row.label}</strong>`;
+          item.appendChild(selectFor(row.options, index));
+          list.appendChild(item);
+        });
+        box.appendChild(list);
+        els.work.appendChild(box);
+      }
+
+      function renderProper(level) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "work";
+        level.rows.forEach((row, rowIndex) => {
+          const group = document.createElement("div");
+          group.className = "observation-card";
+          group.innerHTML = `<p><strong>${rowIndex + 1}. </strong>${row.sentence}</p>`;
+          const bank = document.createElement("div");
+          bank.className = "chip-bank";
+          row.options.forEach((option) => {
+            const chip = document.createElement("button");
+            chip.className = "chip";
+            chip.type = "button";
+            chip.textContent = option;
+            chip.dataset.row = rowIndex;
+            chip.dataset.value = option;
+            chip.setAttribute("aria-pressed", "false");
+            chip.addEventListener("click", () => {
+              chip.classList.toggle("selected");
+              chip.setAttribute("aria-pressed", chip.classList.contains("selected") ? "true" : "false");
+            });
+            bank.appendChild(chip);
+          });
+          group.appendChild(bank);
+          wrapper.appendChild(group);
+        });
+        els.work.appendChild(wrapper);
+      }
+
+      function renderMatch(level) {
+        const list = document.createElement("div");
+        list.className = "match-list";
+        level.rows.forEach((row, index) => {
+          const item = document.createElement("label");
+          item.className = "match-row";
+          item.innerHTML = `<strong>${row.left}</strong>`;
+          item.appendChild(selectFor(row.options, index));
+          list.appendChild(item);
+        });
+        els.work.appendChild(list);
+      }
+
+      function selectFor(options, index) {
+        const select = document.createElement("select");
+        select.dataset.index = index;
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "請選擇";
+        select.appendChild(placeholder);
+        options.forEach((option) => {
+          const item = document.createElement("option");
+          item.value = option;
+          item.textContent = option;
+          select.appendChild(item);
+        });
+        return select;
+      }
+
+      function renderCreative() {
+        const box = document.createElement("div");
+        box.className = "work";
+        box.innerHTML = `
+          <label class="observation-card">
+            <strong>如果村子裡有老奶奶生病了，你會用神筆畫什麼給她？</strong>
+            <textarea id="kindAnswer" placeholder="例如：我會畫一碗熱湯和一張舒服的床，讓她好好休息。"></textarea>
+          </label>
+          <label class="observation-card">
+            <strong>如果不貪心的你想送一個禮物給自己，你會畫什麼？為什麼？</strong>
+            <textarea id="giftAnswer" placeholder="寫下你的想法。"></textarea>
+          </label>
+          <div class="canvas-tools">
+            <canvas id="drawingBoard" class="drawing-board" width="760" height="320" aria-label="神筆畫布"></canvas>
+            <div class="swatches" aria-label="顏色選擇">
+              <button class="swatch" style="background:#263238" data-color="#263238" aria-label="黑色" aria-pressed="true"></button>
+              <button class="swatch" style="background:#c95f55" data-color="#c95f55" aria-label="紅色" aria-pressed="false"></button>
+              <button class="swatch" style="background:#3d78a7" data-color="#3d78a7" aria-label="藍色" aria-pressed="false"></button>
+              <button class="swatch" style="background:#4c8b57" data-color="#4c8b57" aria-label="綠色" aria-pressed="false"></button>
+              <button class="swatch" style="background:#f0bd55" data-color="#f0bd55" aria-label="金色" aria-pressed="false"></button>
+            </div>
+          </div>
+          <button id="clearCanvas" class="secondary" type="button">清空畫布</button>
+        `;
+        els.work.appendChild(box);
+        setupCanvas();
+      }
+
+      function setupCanvas() {
+        const canvas = document.querySelector("#drawingBoard");
+        const ctx = canvas.getContext("2d");
+        ctx.lineWidth = 5;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = state.color;
+        const position = (event) => {
+          const rect = canvas.getBoundingClientRect();
+          const point = event.touches ? event.touches[0] : event;
+          return {
+            x: (point.clientX - rect.left) * (canvas.width / rect.width),
+            y: (point.clientY - rect.top) * (canvas.height / rect.height)
+          };
+        };
+        const start = (event) => {
+          state.drawing = true;
+          const point = position(event);
+          ctx.beginPath();
+          ctx.moveTo(point.x, point.y);
+        };
+        const draw = (event) => {
+          if (!state.drawing) return;
+          event.preventDefault();
+          const point = position(event);
+          ctx.lineTo(point.x, point.y);
+          ctx.stroke();
+        };
+        const stop = () => {
+          state.drawing = false;
+        };
+        canvas.addEventListener("mousedown", start);
+        canvas.addEventListener("mousemove", draw);
+        canvas.addEventListener("mouseup", stop);
+        canvas.addEventListener("mouseleave", stop);
+        canvas.addEventListener("touchstart", start, { passive: false });
+        canvas.addEventListener("touchmove", draw, { passive: false });
+        canvas.addEventListener("touchend", stop);
+        document.querySelectorAll(".swatch").forEach((button) => {
+          button.addEventListener("click", () => {
+            document.querySelectorAll(".swatch").forEach((item) => item.setAttribute("aria-pressed", "false"));
+            button.setAttribute("aria-pressed", "true");
+            state.color = button.dataset.color;
+            ctx.strokeStyle = state.color;
+          });
+        });
+        document.querySelector("#clearCanvas").addEventListener("click", () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+      }
+
+      function checkAnswer() {
+        const level = levels[state.index];
+        let correct = false;
+        if (level.type === "order") {
+          correct = level.answer.every((item, index) => state.order[index] === item);
+        }
+        if (["swap", "cloze", "view", "match"].includes(level.type)) {
+          const selects = [...els.work.querySelectorAll("select")];
+          correct = selects.every((select, index) => select.value === level.rows[index].answer);
+        }
+        if (level.type === "proper") {
+          correct = level.rows.every((row, rowIndex) => {
+            const selected = [...els.work.querySelectorAll(`[data-row="${rowIndex}"].selected`)].map((item) => item.dataset.value).sort();
+            return selected.join("|") === row.answers.slice().sort().join("|");
+          });
+        }
+        if (level.type === "creative") {
+          const kind = document.querySelector("#kindAnswer").value.trim();
+          const gift = document.querySelector("#giftAnswer").value.trim();
+          correct = kind.length >= 6 && gift.length >= 6;
+        }
+        if (correct) completeLevel(level);
+        else setFeedback(level.type === "creative" ? "請先寫下兩個完整想法，再完成最後任務。" : "還差一點，再看看提示或重新調整答案。", "try");
+      }
+
+      function completeLevel(level) {
+        if (!state.done.has(level.id)) {
+          state.done.add(level.id);
+          state.score += 10;
+          state.brush += 1;
+        }
+        setFeedback("答對了！神筆恢復了一道光。", "good");
+        els.nextBtn.disabled = false;
+        els.checkBtn.disabled = true;
+        renderTrail();
+        renderScore();
+      }
+
+      function nextLevel() {
+        const next = levels.findIndex((level) => !state.done.has(level.id));
+        if (next === -1) {
+          finishGame();
+          return;
+        }
+        renderLevel(next);
+      }
+
+      function finishGame() {
+        els.gameArea.hidden = true;
+        els.finishPanel.hidden = false;
+        els.finishText.textContent = `你完成了 ${state.done.size} 個任務，取得 ${state.score} 點魔力。馬良可以帶著神筆回村子，繼續幫需要的人畫畫。`;
+      }
+
+      function resetGame() {
+        state.index = 0;
+        state.score = 0;
+        state.brush = 0;
+        state.done = new Set();
+        document.querySelector(".hero").hidden = false;
+        els.gameArea.hidden = true;
+        els.finishPanel.hidden = true;
+        renderScore();
+      }
+
+      function setFeedback(message, type) {
+        els.feedback.textContent = message;
+        els.feedback.className = `feedback ${type || ""}`.trim();
+      }
+    </script>
+  </body>
+</html>
